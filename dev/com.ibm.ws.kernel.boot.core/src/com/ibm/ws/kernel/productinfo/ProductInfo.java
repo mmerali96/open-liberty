@@ -41,6 +41,8 @@ public class ProductInfo {
     public static final String COM_IBM_WEBSPHERE_PRODUCTEDITION_KEY = "com.ibm.websphere.productEdition";
     public static final String COM_IBM_WEBSPHERE_PRODUCTREPLACES_KEY = "com.ibm.websphere.productReplaces";
     public static final String COM_IBM_WEBSPHERE_LOG_REPLACED_PRODUCT = "com.ibm.websphere.logReplacedProduct";
+    public static final String BETA_EDITION_JVM_PROPERTY = "com.ibm.ws.beta.edition";
+    public static final String EARLY_ACCESS = "EARLY_ACCESS";
 
     private static FileFilter versionFileFilter = new FileFilter() {
         @Override
@@ -209,7 +211,7 @@ public class ProductInfo {
     }
 
     public boolean isReplacedProductLogged() {
-      return "true".equalsIgnoreCase(properties.getProperty("com.ibm.websphere.logReplacedProduct"));
+        return "true".equalsIgnoreCase(properties.getProperty("com.ibm.websphere.logReplacedProduct"));
     }
 
     public String getProperty(String key) {
@@ -223,6 +225,33 @@ public class ProductInfo {
         }
 
         return value;
+    }
+
+    public boolean isBeta() {
+        boolean isBeta;
+        String productEdition = this.getEdition();
+        if (productEdition == null) {
+            isBeta = false;
+        } else {
+            isBeta = productEdition.equals(EARLY_ACCESS);
+        }
+        return isBeta;
+    }
+
+    public static void isAnyProductBeta() {
+        try {
+            if (System.getProperty(BETA_EDITION_JVM_PROPERTY) == null) {
+                final Map<String, ProductInfo> productInfos = ProductInfo.getAllProductInfo();
+                for (ProductInfo info : productInfos.values()) {
+                    if ((info.isBeta())) {
+                        System.out.println("Setting system Property to true");
+                        System.setProperty(BETA_EDITION_JVM_PROPERTY, "true");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //Ignoring the exception from the getAllProductInfo()
+        }
     }
 
     /**
@@ -278,4 +307,5 @@ public class ProductInfo {
 
         return versionFiles;
     }
+
 }
