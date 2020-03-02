@@ -228,8 +228,7 @@ public class ProductInfo {
     }
 
     /**
-     * Helper method to check if EARLY_ACCESS is detection in the edition
-     *
+     * Helper method for determining if product is EARLY_ACCESS edition
      */
     public boolean isBeta() {
         boolean isBeta;
@@ -243,27 +242,23 @@ public class ProductInfo {
     }
 
     /**
-     * Checks if the current version is in early access and then sets the BETA_EDITION_JVM_PROPERTY. It will
-     * be set to true if it found the early access tag else false.
-     *
+     * Sets the com.ibm.ws.beta.edition JVM property to true if the Liberty version is EARLY_ACCESS,
+     * otherwise sets it to false.
      */
     public static void isAnyProductBeta() {
         try {
-            System.out.println("Inside isAnyProductBeta " + System.getProperty(BETA_EDITION_JVM_PROPERTY));
             if (System.getProperty(BETA_EDITION_JVM_PROPERTY) == null) {
+                System.setProperty(BETA_EDITION_JVM_PROPERTY, "false");
                 final Map<String, ProductInfo> productInfos = ProductInfo.getAllProductInfo();
                 for (ProductInfo info : productInfos.values()) {
-                    if ((info.isBeta())) {
-                        System.out.println("Setting system Property to true");
+                    if (info.isBeta()) {
                         System.setProperty(BETA_EDITION_JVM_PROPERTY, "true");
-                    } else {
-                        System.out.println("Setting system Property to false");
-                        System.setProperty(BETA_EDITION_JVM_PROPERTY, "false");
+                        break;
                     }
                 }
             }
         } catch (Exception e) {
-            //Ignoring the exception from the getAllProductInfo()
+            //FFDC and move on ... assume not early access
         }
     }
 
